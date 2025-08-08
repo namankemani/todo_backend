@@ -1,12 +1,15 @@
 // models/User.ts
-import mongoose, { Schema, model, models } from 'mongoose';
+import mongoose from 'mongoose';
+import { unique } from 'next/dist/build/utils';
 
-const UserSchema = new Schema({
-  name: { type: String },
+const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-});
+},
+{ timestamps: true }
+);
 
-const User = models.User || model('User', UserSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 export default User;

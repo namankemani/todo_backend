@@ -1,6 +1,6 @@
-// lib/auth.ts
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { NextRequest } from 'next/server';
 
 const JWT_SECRET = 'super-secret-key'; // Use env var in production
 
@@ -19,3 +19,37 @@ export async function hashPassword(password: string) {
 export async function comparePasswords(password: string, hash: string) {
   return await bcrypt.compare(password, hash);
 }
+
+// NEW FUNCTION to get user from the request
+// export function getUserFromRequest(req: NextRequest): string | null {
+//   const authHeader = req.headers.get('authorization');
+
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return null;
+//   }
+
+//   const token = authHeader.split(' ')[1];
+
+//   try {
+//     const decoded = verifyToken(token);
+//     return decoded.userId;
+//   } catch (error) {
+//     console.error('JWT verification failed:', error);
+//     return null;
+//   }
+// }
+export const getUserFromRequest = async (req: NextRequest): Promise<string | null> => {
+  try {
+    const authHeader = req.headers.get("authorization");
+
+    if (!authHeader) return null;
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+
+    return decoded.userId;
+  } catch (err) {
+    console.error("Error decoding token:", err);
+    return null;
+  }
+};
